@@ -1,14 +1,24 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
-import cuserController from './controller/userController.js'
+// import userController from './controller/userController.js'
 import 'dotenv/config';
-
-
+// import userController from './controller/userController.js';
+import userRoutes from './routes/userRoutes.js';
 
 
 const app = new Hono()
 
-app.route('/api',cuserController);
+app.route('/',userRoutes);
+
+
+
+
+
+
+
+
+
+
 
 serve({
   fetch: app.fetch,

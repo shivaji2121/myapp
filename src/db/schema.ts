@@ -1,8 +1,7 @@
-import { primaryKey } from "drizzle-orm/gel-core";
-import { integer, pgTable, varchar,serial } from "drizzle-orm/pg-core";
+import { integer, pgTable, serial, varchar } from "drizzle-orm/pg-core";
 
-export const usersTable = pgTable("users", {
-  id: serial("id").primaryKey(),
+export const users = pgTable("users", {
+  id: serial().primaryKey(),
   name: varchar().notNull(),
   age: integer().notNull(),
   email: varchar().notNull().unique(),

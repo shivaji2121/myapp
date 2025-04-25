@@ -1,64 +1,78 @@
-import { Hono } from "hono";
-
-import { usersTable } from "../db/schema.js";
-
-import { db } from "../db/db.js";
-
-import { eq } from "drizzle-orm";
-import { use } from "hono/jsx";
+import { type Context } from "hono";
+import * as services from "../services/services.js";
+import { getAllUsers, getUserById ,saveUser,updateUser,deleteUser} from "../services/services.js";
 
 
-
-const  userController=new Hono();
-
-//save a record ...
-userController.post('/users',async(c)=>{  //TODO:Why you add this C
-const body=await c.req.json();
-// console.log(body);
-try{
-    const newUser= await db.insert(usersTable).values(body).returning();
-    return c.json(newUser, 201);  //TODO:  You should aware what will be the return type
-}catch(error){
-    return c.text("user alreday exist", 400);
-}});     //TODO: Learn about status codes
+//git commit -m "Implement add user api"
 
 
-
-
-//get all users...
-userController.get('/users',async(c)=>{
-    try {
-        const all_users=await db.select().from(usersTable);  //This is service call
-        return c.json(all_users,201);
-    } catch (error) {
-        return c.json({error:"unable to Fetch"},404);
-    }
-})
-
-
-
-
-// get users by id...
-userController.get("/users/:id",async(c)=>{ 
-
-    const users_data=await db.select().from(usersTable);
-  try {
-    const user_id=Number(c.req.param('id'));
-    const user=users_data.find(item=>item.id===user_id);
-    return c.json(user,201);
-  } catch (error) {
-    return c.json({message:"user not ound"},404);
+//get all users....
+export const getAll = async(c:Context)=>{
+  try{
+    const allUsers=await getAllUsers();
+    return c.json(allUsers,200);
+  }catch(err){
+    return c.json({message:"unable to Fetch",error:err},404);
   }
+}
 
-});
+//get users based on id
+export const getById=async (c:Context)=>{
+  const userId=Number(c.req.param('id'));
+  try {
+    const user=await getUserById(userId);
+    return c.json(user,200);
+  } catch (error) {
+    return c.json({message:"not Found",err:error},400);
+  }
+  
+}
 
-//update user...
-userController.patch('/users/:id',async(c)=>{
 
-})
+//save a  record...
+export const createUser=async(c:Context)=>{
+  const body=await c.req.json();
+
+  try {
+
+    const user=await saveUser(body);
+
+    return c.json(user, 201)
+  } catch (error) {
+    return c.json({message:"unable to create",error:error},400);
+  }
+};
+
+//UPDATE  USERS RECORDS...
+//update a record....
+export const updateUserRecord=async(c:Context)=>{
+  const userId=Number(c.req.param('id'));
+  const body=await c.req.json();
+  try {
+    const user=await updateUser(userId,body);
+
+    return c.json(user,200);
+  } catch (error) {
+    return c.json({message:"unable to update",error:error},400);
+  }
+}
 
 
-export default userController;
+
+
+//deleting user
+export const deleteUserRecord=async (c:Context)=>{
+  const userId=Number(c.req.param('id'));
+  try {
+    const user=await deleteUser(userId);
+
+    return c.json(user,200);
+  } catch (error) {
+    return c.json({message:"unable to delete",error:error},400);
+  }
+};
+
+
 
 
 
